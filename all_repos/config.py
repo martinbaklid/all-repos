@@ -2,6 +2,7 @@ import json
 import os
 import re
 import sys
+from platform import uname
 from typing import Any
 from typing import Callable
 from typing import Dict
@@ -37,7 +38,8 @@ class Config(NamedTuple):
 
 def _check_permissions(filename: str) -> None:
     mode = os.stat(filename).st_mode & 0o777
-    if sys.platform != 'win32' and mode != 0o600:
+    is_wsl = 'microsoft' in uname().release.lower()
+    if sys.platform != 'win32' and not is_wsl and mode != 0o600:
         raise SystemExit(
             f'{filename} has too-permissive permissions, Expected 0o600, '
             f'got 0o{mode:o}',

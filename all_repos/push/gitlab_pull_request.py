@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import subprocess
 import urllib.parse
@@ -48,6 +50,7 @@ def push(settings: Settings, branch_name: str) -> None:
         'target_branch': autofix_lib.target_branch(),
         'title': title.decode().strip(),
         'description': body.decode().strip(),
+        'remove_source_branch': True,
     }).encode()
 
     resp = gitlab_api.req(

@@ -1,4 +1,5 @@
-from typing import Dict
+from __future__ import annotations
+
 from typing import NamedTuple
 
 from all_repos import gitlab_api
@@ -17,11 +18,11 @@ class Settings(NamedTuple):
 
 LIST_REPOS_URL = (
     '{settings.base_url}/groups/'
-    '{settings.org}/projects?with_shared=False'
+    '{settings.org}/projects?with_shared=False&include_subgroups=true'
 )
 
 
-def list_repos(settings: Settings) -> Dict[str, str]:
+def list_repos(settings: Settings) -> dict[str, str]:
     repos = gitlab_api.get_all(
         LIST_REPOS_URL.format(settings=settings),
         headers={'Private-Token': settings.api_key},

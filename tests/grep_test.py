@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 from unittest import mock
 
@@ -82,6 +84,14 @@ def test_grep_cli(file_config_files, capsys):
     out, _ = capsys.readouterr()
     assert out == ''
 
+    ret = main(('-C', str(file_config_files.cfg), '-h', '^OH'))
+    assert ret == 0
+    out, _ = capsys.readouterr()
+    assert out == '{}:OHAI\n{}:OHELLO\n'.format(
+        file_config_files.output_dir.join('repo1'),
+        file_config_files.output_dir.join('repo2'),
+    )
+
 
 def test_grep_cli_output_paths(file_config_files, capsys):
     cmd = ('-C', str(file_config_files.cfg), '-l', '^OH', '--output-paths')
@@ -97,14 +107,23 @@ def _test_grep_color(file_config_files, capsys, *, args=()):
     ret = main(('-C', str(file_config_files.cfg), 'OHAI', *args))
     assert ret == 0
     out, _ = capsys.readouterr()
-    expected = (
-        '\033[1;34m{}\033[m'
-        '\033[36m:\033[m'
-        'f'
-        '\033[36m:\033[m'
-        '\033[1;31mOHAI\033[m\n'
-    ).format(file_config_files.output_dir.join('repo1'))
-    assert out == expected
+    directory = file_config_files.output_dir.join('repo1')
+    assert out in {
+        (
+            f'\033[1;34m{directory}\033[m'
+            f'\033[36m:\033[m'
+            f'\033[35mf\033[m'
+            f'\033[36m:\033[m'
+            f'\033[1;31mOHAI\033[m\n'
+        ),
+        (
+            f'\033[1;34m{directory}\033[m'
+            f'\033[36m:\033[m'
+            f'f'
+            f'\033[36m:\033[m'
+            f'\033[1;31mOHAI\033[m\n'
+        ),
+    }
 
 
 def test_grep_color_always(file_config_files, capsys):
